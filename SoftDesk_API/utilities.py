@@ -22,3 +22,8 @@ TYPE = [
     ('iOS', 'iOS'),
     ('ANDROID', 'ANDROID')
 ]
+
+ROLE = [
+    ('CREATEUR', 'CREATEUR'),
+    ('CONTRIBUTEUR', 'CONTRIBUTEUR'),
+]
