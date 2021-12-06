@@ -1,21 +1,33 @@
 from django.http import Http404
-from django.shortcuts import get_object_or_404
 from rest_framework import viewsets, status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from IssueTrackingSystem.models import Projects, Issues, Contributors
-from IssueTrackingSystem.serializers import ProjectSerializer, IssueSerializer, ContributorSerializer
+from IssueTrackingSystem.models import Projects, Issues, Contributors, Comments
+from IssueTrackingSystem.serializers import ProjectSerializer, IssueSerializer, ContributorSerializer, CommentSerializer
+from IssueTrackingSystem.permissions import IsProjectCreatorOrContributor
 
 
 class ProjectViewSet(viewsets.ModelViewSet):
     serializer_class = ProjectSerializer
-    permission_classes = [IsAuthenticated]
+    # Permissions OK pour toutes les actions propres à un projet
+    permission_classes = [IsProjectCreatorOrContributor, ]
 
     def get_queryset(self):
         return Projects.objects.filter()
 
+    def list(self, request, *args, **kwargs):
+        """
+        Return all the Projects which user in "CREATEUR" or "CONTRIBUTEUR"
+        """
+        projects = request.user.projects_set.all()
+        serialized_project = ProjectSerializer(projects, many=True)
+        return Response(serialized_project.data)
+
     def perform_create(self, serializer):
+        """
+        Create a new project and add a new instance of contributors in Contributors class with the role"CREATEUR"
+        """
         project = serializer.save()
         Contributors.objects.create(
             user_id=self.request.user,
@@ -38,7 +50,7 @@ class IssuesViewSet(viewsets.ModelViewSet):
 class ContributorViewSet(viewsets.ModelViewSet):
     queryset = Contributors.objects.filter()
     serializer_class = ContributorSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsProjectCreatorOrContributor]
 
     def get_object(self):
         try:
