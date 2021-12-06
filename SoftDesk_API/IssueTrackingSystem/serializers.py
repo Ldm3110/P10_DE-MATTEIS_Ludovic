@@ -6,13 +6,25 @@ from IssueTrackingSystem.models import Projects, Issues, Comments, Contributors
 class ProjectSerializer(serializers.ModelSerializer):
     class Meta:
         model = Projects
-        fields = '__all__'
+        fields = [
+            'id',
+            'title',
+            'description',
+            'type'
+        ]
 
 
 class IssueSerializer(serializers.ModelSerializer):
     class Meta:
         model = Issues
-        fields = '__all__'
+        fields = [
+            'id',
+            'title',
+            'description',
+            'tag',
+            'priority',
+            'status'
+        ]
 
 
 class CommentSerializer(serializers.ModelSerializer):
