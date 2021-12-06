@@ -17,7 +17,7 @@ from django.contrib import admin
 from django.urls import path, include
 from rest_framework_nested import routers
 
-from IssueTrackingSystem.views import ProjectViewSet, IssuesViewSet, ContributorViewSet
+from IssueTrackingSystem.views import ProjectViewSet, IssuesViewSet, ContributorViewSet, CommentsViewSet
 
 router = routers.SimpleRouter()
 router.register(r'projects', ProjectViewSet, basename='projects')
@@ -36,6 +36,11 @@ contributors_of_project.register(r'users', ContributorViewSet, basename='contrib
 # --- generates :
 # /projects/{project_pk}/users
 # /projects/{project_pk}/users/{user_pk}
+comment_issue = routers.NestedSimpleRouter(project_issue, r'issues', lookup='issue')
+comment_issue.register(r'comments', CommentsViewSet, basename='comment-issue')
+# --- generates :
+# /projects/{project_pk}/users/{user_pk}/comments
+# /projects/{project_pk}/users/{user_pk}/comments/{comment_pk}
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -44,7 +49,7 @@ urlpatterns = [
     # Projects, Issues and Comments
     path('', include(router.urls)),
     path('', include(project_issue.urls)),
-
+    path('', include(comment_issue.urls)),
     # Add, display or delete a user in a project
     path('', include(contributors_of_project.urls)),
 
