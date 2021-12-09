@@ -30,7 +30,7 @@ class IssueSerializer(serializers.ModelSerializer):
 class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comments
-        fields = '__all__'
+        fields = ['description']
 
 
 class ContributorSerializer(serializers.ModelSerializer):
