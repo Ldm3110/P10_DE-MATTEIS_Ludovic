@@ -44,6 +44,28 @@ $ cd SoftDesk_API
 $ pip install -r requirements.txt
 `
 
+## Connection de l'API
+
+### Première connexion :
+
+Avant de pouvoir utiliser l'API, vous devrez effectuer les migrations nécessaires afin de pouvoir activer celle-ci. Pour cela assurez-vous d'être dans le dossier SoftDesk_API et indiquez la commande suivante dans le terminal :
+
+`
+$ ./manage.py migrate
+
+Une fois cette action effectuée vous pouvez démarrer l'API avec la commande suivante :
+
+`
+$ ./manage.py runserver
+
+### Connexions suivantes :
+
+A partir du moment où vous avez bien effectué les étapes du point précédent, vous n'avez rien d'autre à faire que démarrer l'API en tapant la commande suivante :
+
+`
+$ ./manage.py runserver
+
+
 ## Documentation POSTMAN de l'API
 
 veuillez vous référer à la documentation à l'url suivante :
