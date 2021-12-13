@@ -34,7 +34,7 @@ $ source env/bin/activate
 - Tout d'abord accéder au dossier de l'API :
 
 `
-$ cd SoftDeskAPI
+$ cd SoftDesk_API
 `
 
 
