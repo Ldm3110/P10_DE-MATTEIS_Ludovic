@@ -43,3 +43,9 @@ $ cd SoftDesk_API
 `
 $ pip install -r requirements.txt
 `
+
+## Documentation POSTMAN de l'API
+
+veuillez vous référer à la documentation à l'url suivante :
+
+https://documenter.getpostman.com/view/18365116/UVR5s9xD
