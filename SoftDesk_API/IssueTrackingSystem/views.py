@@ -1,6 +1,5 @@
 from django.http import Http404
 from rest_framework import viewsets, status
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from IssueTrackingSystem.models import Projects, Issues, Contributors, Comments
@@ -128,9 +127,11 @@ class CommentsViewSet(viewsets.ModelViewSet):
 
 
 class ContributorViewSet(viewsets.ModelViewSet):
-    queryset = Contributors.objects.filter()
     serializer_class = ContributorSerializer
     permission_classes = [IsProjectCreatorOrContributor]
+
+    def get_queryset(self):
+        return Contributors.objects.filter(project_id=self.kwargs['project_pk'])
 
     def get_object(self):
         try:
@@ -142,10 +143,37 @@ class ContributorViewSet(viewsets.ModelViewSet):
         except Http404:
             return Response(status=status.HTTP_404_NOT_FOUND)
 
+    def get_project(self):
+        """
+        Find instance of the "Projects" object and send it back for creation
+        """
+        try:
+            instance = Projects.objects.get(id=self.kwargs['project_pk'])
+            return instance
+        except Http404:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+    def perform_create(self, serializer):
+        """
+        Create a new Issue and add manually project_id and author_user_id after having retrieved it in the url
+        """
+        project_instance = self.get_project()
+        try:
+            Contributors.objects.get(
+                project_id=project_instance,
+                user_id=self.request.POST.get("user_id")
+            )
+            print("Contributor existe déjà")
+
+        except Contributors.DoesNotExist:
+            serializer.save(
+                project_id=project_instance,
+            )
+
     def destroy(self, request, *args, **kwargs):
         try:
             instance = self.get_object()
             self.perform_destroy(instance)
-        except Http404:
+        except Contributors.DoesNotExist:
             pass
         return Response(status=status.HTTP_204_NO_CONTENT)
