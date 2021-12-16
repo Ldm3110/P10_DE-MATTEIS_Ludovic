@@ -44,3 +44,6 @@ class Contributors(models.Model):
     user_id = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     project_id = models.ForeignKey(Projects, on_delete=models.CASCADE)
     role = models.CharField(max_length=255, choices=ROLE)
+
+    def __str__(self):
+        return f"Utilisateur n°{self.user_id_id} - Projet n°{self.project_id} - Rôle : {self.role}"
