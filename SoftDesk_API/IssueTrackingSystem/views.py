@@ -40,7 +40,12 @@ class IssuesViewSet(viewsets.ModelViewSet):
     permission_classes = [IsIssueAuthor, ]
 
     def get_queryset(self):
-        return Issues.objects.filter(project_id=self.kwargs['project_pk'])
+        print("get_queryset")
+        issues = Issues.objects.filter(project_id=self.kwargs['project_pk'])
+        print(issues)
+        for issue in issues:
+            self.check_object_permissions(self.request, issue)
+        return issues
 
     def get_object(self):
         """
@@ -56,21 +61,15 @@ class IssuesViewSet(viewsets.ModelViewSet):
         except Http404:
             return Response(status=status.HTTP_404_NOT_FOUND)
 
-    def get_project(self):
-        """
-        Find instance of the "Projects" object and send it back for creation
-        """
-        try:
-            instance = Projects.objects.get(id=self.kwargs['project_pk'])
-            return instance
-        except Http404:
-            return Response(status=status.HTTP_404_NOT_FOUND)
-
     def perform_create(self, serializer):
         """
         Create a new Issue and add manually project_id and author_user_id after having retrieved it in the url
         """
-        project_instance = self.get_project()
+        try:
+            project_instance = Projects.objects.get(id=self.kwargs['project_pk'])
+        except Http404:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
         serializer.save(
             project_id=project_instance,
             author_user_id=self.request.user
@@ -91,10 +90,12 @@ class CommentsViewSet(viewsets.ModelViewSet):
     permission_classes = [IsCommentAuthor, ]
 
     def get_queryset(self):
-        print("rentre dans get_queryset\n")
-        return Comments.objects.filter(
+        comments = Comments.objects.filter(
             issues_id__project_id=self.kwargs['project_pk']
         )
+        for comment in comments:
+            self.check_object_permissions(self.request, comment)
+        return comments
 
     def get_object(self):
         """
