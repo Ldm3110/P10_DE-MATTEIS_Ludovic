@@ -38,7 +38,6 @@ class ContributorSerializer(serializers.ModelSerializer):
         model = Contributors
         fields = [
             'user_id',
-            'project_id',
             'role'
         ]
         extra_kwargs = {
