@@ -40,9 +40,11 @@ class IssuesViewSet(viewsets.ModelViewSet):
     permission_classes = [IsIssueAuthor, ]
 
     def get_queryset(self):
-        print("get_queryset")
+        """
+        1. Check if the user has the autorisation to see issues
+        2. If the user has permission -> return issues
+        """
         issues = Issues.objects.filter(project_id=self.kwargs['project_pk'])
-        print(issues)
         for issue in issues:
             self.check_object_permissions(self.request, issue)
         return issues
@@ -63,8 +65,11 @@ class IssuesViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         """
-        Create a new Issue and add manually project_id and author_user_id after having retrieved it in the url
+        1. Check if the user has authorisation to create an issue
+        2. Extract the instance of the project to have the project_id
+        3. Create a new Issue and add manually project_id and author_user_id after having retrieved it in the url
         """
+        self.get_queryset()
         try:
             project_instance = Projects.objects.get(id=self.kwargs['project_pk'])
         except Http404:
@@ -76,6 +81,9 @@ class IssuesViewSet(viewsets.ModelViewSet):
         )
 
     def destroy(self, request, *args, **kwargs):
+        """
+        Delete a specific issue
+        """
         try:
             instance = self.get_object()
             self.check_object_permissions(request, instance)
@@ -90,6 +98,10 @@ class CommentsViewSet(viewsets.ModelViewSet):
     permission_classes = [IsCommentAuthor, ]
 
     def get_queryset(self):
+        """
+        1. Check if the user has the autorisation to see comments
+        2. If the user has permission -> return issues
+        """
         comments = Comments.objects.filter(
             issues_id__project_id=self.kwargs['project_pk']
         )
@@ -101,7 +113,6 @@ class CommentsViewSet(viewsets.ModelViewSet):
         """
         Return instance of the "Issues" object
         """
-        print("rentre dans get_object\n")
         try:
             instance = Comments.objects.get(
                 issues_id=self.kwargs['issue_pk'],
@@ -112,17 +123,19 @@ class CommentsViewSet(viewsets.ModelViewSet):
         except Http404:
             return Response(status=status.HTTP_404_NOT_FOUND)
 
-    def get_issue(self):
+    def perform_create(self, serializer):
+        """
+        1. Check if the user has the permission to create a comment
+        2. Extract the instance of the comment to have the issue_id
+        3. Create the comment
+        """
+        self.get_queryset()
         try:
             instance = Issues.objects.get(id=self.kwargs['issue_pk'])
-            return instance
         except Http404:
             return Response(status=status.HTTP_404_NOT_FOUND)
-
-    def perform_create(self, serializer):
-        issue_instance = self.get_issue()
         serializer.save(
-            issues_id=issue_instance,
+            issues_id=instance,
             author_user_id=self.request.user
         )
 
@@ -135,6 +148,9 @@ class ContributorViewSet(viewsets.ModelViewSet):
         return Contributors.objects.filter(project_id=self.kwargs['project_pk'])
 
     def get_object(self):
+        """
+        Return the instance of a Contributor
+        """
         try:
             instance = Contributors.objects.get(
                 user_id=self.kwargs['pk'],
@@ -156,22 +172,25 @@ class ContributorViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         """
-        Create a new Issue and add manually project_id and author_user_id after having retrieved it in the url
+        Create a new Contributor and add manually project_id and author_user_id after having retrieved it in the url
         """
         project_instance = self.get_project()
         try:
+            # Try to find this Contributor to avoid creating a duplicate
             Contributors.objects.get(
                 project_id=project_instance,
                 user_id=self.request.POST.get("user_id")
             )
-            print("Contributor existe déjà")
-
         except Contributors.DoesNotExist:
+            # Contributor does not exist -- Creation of the Contributor
             serializer.save(
                 project_id=project_instance,
             )
 
     def destroy(self, request, *args, **kwargs):
+        """
+        Delete a contributor of a project
+        """
         try:
             instance = self.get_object()
             self.perform_destroy(instance)
