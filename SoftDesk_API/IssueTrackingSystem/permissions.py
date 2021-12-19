@@ -36,7 +36,7 @@ class IsIssueAuthor(BasePermission):
         return False
 
     def has_object_permission(self, request, view, obj):
-        if request.method == "GET":
+        if request.method in {"GET", "POST"}:
             try:
                 contribution = request.user.contributors_set.get(project_id=obj.project_id)
                 if contribution.role == "CREATEUR" or contribution.role == "CONTRIBUTEUR":
@@ -56,7 +56,7 @@ class IsCommentAuthor(BasePermission):
         return False
 
     def has_object_permission(self, request, view, obj):
-        if request.method == "GET":
+        if request.method == {"GET", "POST"}:
             try:
                 issue = Issues.objects.get(id=obj.issues_id_id)
                 contribution = request.user.contributors_set.get(project_id=issue.project_id)
