@@ -2,7 +2,7 @@ from django.db import models
 
 from authentication.models import User
 from config import settings
-from utilities import *
+from utilities import TAG, TYPE, STATUS, ROLE, PRIORITY
 
 
 class Projects(models.Model):

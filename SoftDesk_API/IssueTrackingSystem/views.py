@@ -3,7 +3,8 @@ from rest_framework import viewsets, status
 from rest_framework.response import Response
 
 from IssueTrackingSystem.models import Projects, Issues, Contributors, Comments
-from IssueTrackingSystem.serializers import ProjectSerializer, IssueSerializer, ContributorSerializer, CommentSerializer
+from IssueTrackingSystem.serializers import ProjectSerializer, IssueSerializer, ContributorSerializer, \
+    CommentSerializer
 from IssueTrackingSystem.permissions import IsProjectCreatorOrContributor, IsIssueAuthor, IsCommentAuthor
 
 
